@@ -160,6 +160,7 @@ end
 local steps = {
     initChat,
     initChannels,
+    MT.restoreChatPos,
     initActionBars,
 }
 

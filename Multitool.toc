@@ -8,4 +8,5 @@
 
 Core.lua
 Ranks.lua
+ChatPos.lua
 Init.lua
