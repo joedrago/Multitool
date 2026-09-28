@@ -120,6 +120,63 @@ local function initActionBars()
     SetActionBarToggles(true, true, true, true, true, true, true)
 end
 
+-- No enum for modifier bits. Left and right Shift are separate bits that both display
+-- as "SHIFT", and a real Shift binding stores them combined (3), so sum every match.
+local function shiftModifier()
+    local shift = 0
+    for bit = 0, 15 do
+        local m = 2 ^ bit
+        local s = (GetStringFromModifiers(m) or ""):upper()
+        if s == "SHIFT" or s == (SHIFT_KEY_TEXT or "SHIFT"):upper() then
+            shift = shift + m
+        end
+    end
+    return shift > 0 and shift or nil
+end
+
+local BUTTON_ALIASES = { Button1 = "LeftButton", Button2 = "RightButton" }
+
+-- Frees plain clicks for Click Casting.
+local function initClickBindings()
+    if not C_ClickBindings then
+        return
+    end
+    local shift = shiftModifier()
+    if not shift then
+        MT.error("couldn't find the Shift modifier; click bindings unchanged.")
+        return
+    end
+
+    local interaction = Enum.ClickBindingType.Interaction
+    local want = {
+        [Enum.ClickBindingInteraction.Target] = "LeftButton",
+        [Enum.ClickBindingInteraction.OpenContextMenu] = "RightButton",
+    }
+
+    local profile = C_ClickBindings.GetProfileInfo()
+    local found, changed = {}, false
+    for _, b in ipairs(profile) do
+        local button = b.type == interaction and want[b.actionID]
+        if button then
+            found[b.actionID] = true
+            if (BUTTON_ALIASES[b.button] or b.button) ~= button or b.modifiers ~= shift then
+                b.button, b.modifiers = button, shift
+                changed = true
+            end
+        end
+    end
+    for actionID, button in pairs(want) do
+        if not found[actionID] then
+            table.insert(profile, { type = interaction, actionID = actionID, button = button, modifiers = shift })
+            changed = true
+        end
+    end
+
+    if changed then
+        C_ClickBindings.SetProfileByInfo(profile)
+    end
+end
+
 -- SetActiveLayout indexes presets (Modern, Classic) first, then saved layouts.
 local function allLayouts()
     local layouts = {}
@@ -163,6 +220,7 @@ local steps = {
     MT.enableChatTweaks,
     MT.restoreChatPos,
     initActionBars,
+    initClickBindings,
 }
 
 function MT.init(msg)
