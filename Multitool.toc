@@ -1,0 +1,11 @@
+## Interface: 11509, 20506, 16001
+## Title: Multitool
+## Notes: Assorted QoL slash commands (/tool)
+## Version: 0.1
+## DefaultState: enabled
+## SavedVariables: MultitoolDB
+## Author: Joe Drago
+
+Core.lua
+Ranks.lua
+Init.lua
