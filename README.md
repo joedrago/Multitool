@@ -18,6 +18,7 @@ Assorted QoL slash commands for WoW Forever. `/tool` lists them all.
 - Sets which messages go to the General and Combat Log tabs, sets chat colors, and gives both windows an opaque black background.
 - Unchecks all numbered chat channels (General, Trade, ...) in every window. You stay in the channels.
 - Turns on action bars 2-8.
+- Turns on Power Bars on raid frames.
 - Moves Target / Open Context Menu click bindings to Shift+Left / Shift+Right, for Click Casting.
 - Restores saved chat window positions (`/tool savechatpos`).
 - Turns on the chat tweaks below and sets chat style to Classic.

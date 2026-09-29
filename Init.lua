@@ -120,6 +120,10 @@ local function initActionBars()
     SetActionBarToggles(true, true, true, true, true, true, true)
 end
 
+local function initRaidFrames()
+    SetCVar("raidFramesDisplayPowerBars", "1")
+end
+
 -- No enum for modifier bits. Left and right Shift are separate bits that both display
 -- as "SHIFT", and a real Shift binding stores them combined (3), so sum every match.
 local function shiftModifier()
@@ -220,6 +224,7 @@ local steps = {
     MT.enableChatTweaks,
     MT.restoreChatPos,
     initActionBars,
+    initRaidFrames,
     initClickBindings,
 }
 
