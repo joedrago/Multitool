@@ -178,7 +178,7 @@ local function initClickBindings()
 end
 
 -- SetActiveLayout indexes presets (Modern, Classic) first, then saved layouts.
-local function allLayouts()
+function MT.allLayouts()
     local layouts = {}
     if EditModePresetLayoutManager and EditModePresetLayoutManager.GetCopyOfPresetLayouts then
         for _, l in ipairs(EditModePresetLayoutManager:GetCopyOfPresetLayouts()) do
@@ -195,7 +195,7 @@ local function allLayouts()
 end
 
 local function findLayout(name)
-    local layouts, active = allLayouts()
+    local layouts, active = MT.allLayouts()
     local names = {}
     for i, l in ipairs(layouts) do
         if l.layoutName then

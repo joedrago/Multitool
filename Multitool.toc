@@ -11,3 +11,4 @@ Ranks.lua
 ChatPos.lua
 ChatTweaks.lua
 Init.lua
+Snapshot.lua
