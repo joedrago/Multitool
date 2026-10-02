@@ -12,6 +12,7 @@ Assorted QoL slash commands for WoW Forever. `/tool` lists them all.
 | `/tool snapshot save` | Captures account-wide settings, key bindings and UI layouts into Multitool's saved variables. |
 | `/tool snapshot restore` | Applies a saved snapshot to the current install. |
 | `/tool shards N` | Deletes all but N Soul Shards (outside the soul bag first) and moves the rest into your soul bag. The game allows one delete per key press, so trimming several shards takes several presses. Does nothing in combat, so it's safe to put in a macro you press often. |
+| `/tool targetcast [X Y \| reset]` | With no arguments, prints where the target's cast bar is. With `X Y`, pins its center at that offset from the screen center and keeps it there. `reset` returns it to Blizzard's placement. Stored account-wide. |
 
 `/tool init` does the following:
 
