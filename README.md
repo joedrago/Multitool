@@ -11,6 +11,7 @@ Assorted QoL slash commands for WoW Forever. `/tool` lists them all.
 | `/tool savechatpos` | Remembers the position and size of every undocked chat window (e.g. Combat Log) for `/tool init`. |
 | `/tool snapshot save` | Captures account-wide settings, key bindings and UI layouts into Multitool's saved variables. |
 | `/tool snapshot restore` | Applies a saved snapshot to the current install. |
+| `/tool shards N` | Deletes all but N Soul Shards (outside the soul bag first) and moves the rest into your soul bag. The game allows one delete per key press, so trimming several shards takes several presses. Does nothing in combat, so it's safe to put in a macro you press often. |
 
 `/tool init` does the following:
 
@@ -19,6 +20,7 @@ Assorted QoL slash commands for WoW Forever. `/tool` lists them all.
 - Unchecks all numbered chat channels (General, Trade, ...) in every window. You stay in the channels.
 - Turns on action bars 2-8.
 - Turns on Power Bars on raid frames.
+- Turns on the built-in damage meter.
 - Moves Target / Open Context Menu click bindings to Shift+Left / Shift+Right, for Click Casting.
 - Restores saved chat window positions (`/tool savechatpos`).
 - Turns on the chat tweaks below and sets chat style to Classic.

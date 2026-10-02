@@ -124,6 +124,10 @@ local function initRaidFrames()
     SetCVar("raidFramesDisplayPowerBars", "1")
 end
 
+local function initDamageMeter()
+    SetCVar("damageMeterEnabled", "1")
+end
+
 -- No enum for modifier bits. Left and right Shift are separate bits that both display
 -- as "SHIFT", and a real Shift binding stores them combined (3), so sum every match.
 local function shiftModifier()
@@ -225,6 +229,7 @@ local steps = {
     MT.restoreChatPos,
     initActionBars,
     initRaidFrames,
+    initDamageMeter,
     initClickBindings,
 }
 

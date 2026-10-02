@@ -12,3 +12,4 @@ ChatPos.lua
 ChatTweaks.lua
 Init.lua
 Snapshot.lua
+Shards.lua
