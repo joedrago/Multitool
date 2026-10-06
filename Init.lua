@@ -122,6 +122,7 @@ end
 
 local function initRaidFrames()
     SetCVar("raidFramesDisplayPowerBars", "1")
+    SetCVar("raidOptionDisplayPets", "1")
 end
 
 local function initDamageMeter()
@@ -185,6 +186,79 @@ local function initClickBindings()
     end
 end
 
+local KEY_MACROS = {
+    { key = "Q", name = "PRC st", body = "/prc mode st" },
+    { key = "E", name = "PRC aoe", body = "/prc mode aoe" },
+}
+
+local ACTION_BARS = {
+    "MainActionBar", "MainMenuBar", "MultiBarBottomLeft", "MultiBarBottomRight",
+    "MultiBarRight", "MultiBarLeft", "MultiBar5", "MultiBar6", "MultiBar7",
+}
+
+-- Uses the button's live action, so main bar paging (stances, forms) is respected.
+local function actionSlotForKey(key)
+    local command = GetBindingAction(key)
+    if not command or command == "" then
+        return nil
+    end
+    for _, barName in ipairs(ACTION_BARS) do
+        local bar = _G[barName]
+        for _, button in ipairs(bar and bar.actionButtons or {}) do
+            if button.commandName == command then
+                return button.action
+            end
+        end
+    end
+end
+
+local function macroConst(name, fallback)
+    local consts = Constants and Constants.MacroConsts
+    return consts and consts[name] or _G[name] or fallback
+end
+
+-- Character macros sit after every account macro slot.
+local function characterMacroIndex(name)
+    local base = macroConst("MAX_ACCOUNT_MACROS", 120)
+    local _, numCharacter = GetNumMacros()
+    for i = base + 1, base + numCharacter do
+        if GetMacroInfo(i) == name then
+            return i
+        end
+    end
+end
+
+local function upsertCharacterMacro(name, body)
+    local index = characterMacroIndex(name)
+    if index then
+        if GetMacroBody(index) ~= body then
+            index = EditMacro(index, nil, nil, body)
+        end
+        return index
+    end
+    local _, numCharacter = GetNumMacros()
+    if numCharacter >= macroConst("MAX_CHARACTER_MACROS", 18) then
+        MT.error("no free character macro slots; couldn't create \"" .. name .. "\".")
+        return nil
+    end
+    return CreateMacro(name, 134400, body, true)
+end
+
+local function initKeyMacros()
+    for _, m in ipairs(KEY_MACROS) do
+        local slot = actionSlotForKey(m.key)
+        if slot then
+            local index = upsertCharacterMacro(m.name, m.body)
+            if index then
+                ClearCursor()
+                PickupMacro(index)
+                PlaceAction(slot)
+                ClearCursor()
+            end
+        end
+    end
+end
+
 -- SetActiveLayout indexes presets (Modern, Classic) first, then saved layouts.
 function MT.allLayouts()
     local layouts = {}
@@ -228,6 +302,7 @@ local steps = {
     MT.enableChatTweaks,
     MT.restoreChatPos,
     initActionBars,
+    initKeyMacros,
     initRaidFrames,
     initDamageMeter,
     initClickBindings,
