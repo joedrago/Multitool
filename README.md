@@ -13,11 +13,16 @@ Assorted QoL slash commands for WoW Forever. `/tool` lists them all.
 | `/tool snapshot restore` | Applies a saved snapshot to the current install. |
 | `/tool shards N` | Deletes all but N Soul Shards (outside the soul bag first) and moves the rest into your soul bag. N is raised to your soul bag's size if it's smaller, so a full soul bag is never trimmed. The game allows one delete per key press, so trimming several shards takes several presses. Does nothing in combat, so it's safe to put in a macro you press often. |
 | `/tool targetcast [X Y \| reset]` | With no arguments, prints where the target's cast bar is. With `X Y`, pins its center at that offset from the screen center and keeps it there. `reset` returns it to Blizzard's placement. Stored account-wide. |
+| `/tool chat [N]` | Sets the background opacity of the General and Combat Log windows, from `0` to `1` (default `0.5`). Applies right away and is used by `/tool init`. Stored account-wide. |
+| `/tool fade [N]` | Fades most of the UI after N seconds of not using it. `0` turns it off (the default). With no arguments, prints the current settings. See [Fade](#fade) below. |
+| `/tool fade combat on\|off` | Whether entering combat brings everything back (default `on`). With `off`, only hovering does. |
+| `/tool fade minimap N` | How far the minimap fades, from `0` (gone, the default) to `1` (not at all). |
+| `/tool fade unit N` | How far the player and target frames fade while they still matter, from `0` to `1` (default `0.5`). |
 
 `/tool init` does the following:
 
 - Switches to your UI Layout (Edit Mode).
-- Sets which messages go to the General and Combat Log tabs, sets chat colors, and gives both windows an opaque black background.
+- Sets which messages go to the General and Combat Log tabs, sets chat colors, and gives both windows a black background at your `/tool chat` opacity.
 - Unchecks all numbered chat channels (General, Trade, ...) in every window. You stay in the channels.
 - Turns on action bars 2-8.
 - Turns on Power Bars on raid frames.
@@ -31,6 +36,28 @@ Chat tweaks, re-applied every login once enabled:
 - The input box sits above each chat window.
 - Chat windows can be resized smaller and placed flush against the screen edge.
 - Chat tabs stay hidden until you mouse over the window or a tab starts flashing.
+
+## Fade
+
+With `/tool fade N` set, each piece of the UI fades out once you've left it alone for N seconds. Hovering a piece brings it back, and starts its clock over when the mouse leaves. Entering combat (unless `/tool fade combat off`) or opening Edit Mode brings everything back. Faded pieces still take clicks.
+
+Each of these fades on its own:
+
+- **Minimap**, with its zone text, border and buttons. At `/tool fade minimap 0` the map is hidden once fully faded, because the player arrow and tracking icons ignore transparency.
+- **Main chat window** (General and anything docked with it). Only its background, border and buttons fade away. The text dims to half, and typing brings it back.
+- **Other chat windows** (undocked, e.g. a separate Combat Log). These fade entirely.
+- **Action bars**. Hovering any bar brings back all of them.
+- **Player frame**. Stops at the `/tool fade unit` level while you're in combat, or while your health or main power bar has changed in the last 7 seconds. The game keeps those values secret from addons, so "still changing" is the best available stand-in for "not full".
+- **Target frame**. Stops at the `/tool fade unit` level while you're in combat, or for 5 seconds after picking a target.
+- **Other unit frames**: focus, party and raid frames. Hovering any unit frame, player and target included, brings back all of them.
+- **Damage meter**.
+- **Bag buttons**.
+- **Menu buttons** (character, spellbook, ...).
+- **Experience and reputation bars**.
+- **Quest tracker**.
+- **Buffs and debuffs**.
+
+Opacity set in Edit Mode is kept: a frame fades down from its own opacity and returns to it.
 
 ## Moving to a fresh install
 

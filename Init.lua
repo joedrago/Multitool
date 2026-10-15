@@ -94,10 +94,9 @@ local function initChat()
     ChangeChatColor("PARTY_LEADER", 0/255, 255/255, 117/255)
 
     for i = 1, 2 do
-        local frame = _G["ChatFrame" .. i]
-        FCF_SetWindowColor(frame, 0, 0, 0)
-        FCF_SetWindowAlpha(frame, 1)
+        FCF_SetWindowColor(_G["ChatFrame" .. i], 0, 0, 0)
     end
+    MT.applyChatAlpha()
 end
 
 -- GetChatWindowChannels returns name1, zone1, name2, zone2, ...

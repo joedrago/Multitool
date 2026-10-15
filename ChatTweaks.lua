@@ -56,6 +56,34 @@ local function applyChatTweaks()
     end
 end
 
+-- Background opacity for the General and Combat Log windows. Blizzard saves it per window, and
+-- /tool fade scales whatever is set here, so nothing else needs to know about it.
+local CHAT_ALPHA = 0.5
+
+function MT.applyChatAlpha()
+    local alpha = MT.db().chatAlpha or CHAT_ALPHA
+    for i = 1, 2 do
+        FCF_SetWindowAlpha(_G["ChatFrame" .. i], alpha)
+    end
+end
+
+function MT.chatAlpha(msg)
+    local db = MT.db()
+    msg = strtrim(msg or "")
+    if msg ~= "" then
+        local alpha = tonumber(msg)
+        if not alpha or alpha < 0 or alpha > 1 then
+            MT.error("usage: /tool chat <0 to 1>")
+            return
+        end
+        db.chatAlpha = alpha
+        MT.applyChatAlpha()
+    end
+    MT.print("chat background opacity is " .. (db.chatAlpha or CHAT_ALPHA) .. ".")
+end
+
+MT.register("chat", "set the General and Combat Log background opacity, also used by /tool init. /tool chat 0.5", MT.chatAlpha)
+
 function MT.enableChatTweaks()
     MT.db().chatTweaks = true
     SetCVar("chatStyle", "classic")
