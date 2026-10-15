@@ -18,7 +18,7 @@ local FADE_IN_SECONDS = 0.15
 local UNIT_FLOOR = 0.5 -- default for /tool fade unit
 local BARS_SETTLED_SECONDS = 7 -- comfortably longer than mana's 5 second pause after casting
 local TARGET_RECENT_SECONDS = 5
-local CHAT_TEXT_FLOOR = 0.5 -- main chat window text once its background is gone
+local CHAT_TEXT_FLOOR = 0.5 -- default for /tool fade chat
 
 -- Some values can be secret on this engine; comparing one is an error.
 local function num(v)
@@ -58,6 +58,11 @@ local function unitFloor()
     return MT.db().unitFloor or UNIT_FLOOR
 end
 
+-- How far the main chat window's text fades once its background is gone. 0 is a real setting.
+local function chatTextFloor()
+    return MT.db().chatTextFloor or CHAT_TEXT_FLOOR
+end
+
 local function inCombat()
     return InCombatLockdown() or UnitAffectingCombat("player")
 end
@@ -75,6 +80,18 @@ end)
 
 local function targetIsNew()
     return GetTime() - targetChanged < TARGET_RECENT_SECONDS
+end
+
+local xpChanged = -math.huge
+local xpWatcher = CreateFrame("Frame")
+xpWatcher:RegisterEvent("PLAYER_XP_UPDATE")
+xpWatcher:SetScript("OnEvent", function()
+    xpChanged = GetTime()
+end)
+
+-- Recent means within the fade delay, so a kill keeps the bar up about as long as a hover would.
+local function xpIsNew()
+    return GetTime() - xpChanged < (MT.db().fade or 0)
 end
 
 local function chatFrameNames(suffix)
@@ -158,7 +175,8 @@ end
 -- The main window loses its chrome but only dims its text, so it stays readable.
 -- Tabs are left alone: ChatTweaks already hides them.
 local function applyMainChat(alpha)
-    local textAlpha = CHAT_TEXT_FLOOR + (1 - CHAT_TEXT_FLOOR) * alpha
+    local floor = chatTextFloor()
+    local textAlpha = floor + (1 - floor) * alpha
     eachChatFrame(true, function(chatFrame)
         chatFrame:SetAlpha(textAlpha)
         eachChrome(chatFrame, function(object)
@@ -253,6 +271,9 @@ local GROUPS = {
         fade = { "StatusTrackingBarManager" },
         hover = { "MainStatusTrackingBarContainer", "SecondaryStatusTrackingBarContainer" },
         hoverOnly = true,
+        floor = function()
+            return xpIsNew() and MT.db().xpFloor or 0
+        end,
     },
     {
         fade = { "ObjectiveTrackerFrame" },
@@ -398,9 +419,12 @@ local function printFade()
     MT.print("player and target frames fade to " .. unitFloor() .. " while they matter.")
     local damage = db.damageFloor or 0
     MT.print(damage > 0 and ("the damage meter fades to " .. damage .. " in a group.") or "the damage meter fades out completely.")
+    local xp = db.xpFloor or 0
+    MT.print(xp > 0 and ("the xp bar fades to " .. xp .. " after gaining xp.") or "the xp bar fades out completely.")
+    MT.print("main chat text fades to " .. chatTextFloor() .. ".")
 end
 
-local FADE_USAGE = "usage: /tool fade <seconds, 0 = off> | combat <on | off> | minimap <0 to 1> | unit <0 to 1> | damage <0 to 1>"
+local FADE_USAGE = "usage: /tool fade <seconds, 0 = off> | combat <on | off> | minimap <0 to 1> | unit <0 to 1> | damage <0 to 1> | xp <0 to 1> | chat <0 to 1>"
 
 local function fraction(value)
     local n = tonumber(value)
@@ -426,6 +450,17 @@ function MT.fade(msg)
     elseif option == "damage" and fraction(value) then
         local floor = fraction(value)
         db.damageFloor = floor > 0 and floor or nil
+    elseif option == "xp" and fraction(value) then
+        local floor = fraction(value)
+        db.xpFloor = floor > 0 and floor or nil
+    elseif option == "chat" and fraction(value) then
+        db.chatTextFloor = fraction(value)
+        -- The text alpha is derived from the group's alpha, so redraw it if it's already faded.
+        for _, group in ipairs(GROUPS) do
+            if group.apply == applyMainChat then
+                setAlpha(group, group.alpha)
+            end
+        end
     elseif option == nil and tonumber(msg) and tonumber(msg) >= 0 then
         local seconds = tonumber(msg)
         db.fade = seconds > 0 and seconds or nil
@@ -467,4 +502,4 @@ loader:SetScript("OnEvent", function(self, _, name)
     end
 end)
 
-MT.register("fade", "fade most of the UI after N seconds out of combat; hover a piece or enter combat to bring it back. /tool fade N (0 = off) | combat <on | off> | minimap <0 to 1> | unit <0 to 1> | damage <0 to 1>", MT.fade)
+MT.register("fade", "fade most of the UI after N seconds out of combat; hover a piece or enter combat to bring it back. /tool fade N (0 = off) | combat <on | off> | minimap <0 to 1> | unit <0 to 1> | damage <0 to 1> | xp <0 to 1> | chat <0 to 1>", MT.fade)

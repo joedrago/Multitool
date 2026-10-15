@@ -19,6 +19,8 @@ Assorted QoL slash commands for WoW Forever. `/tool` lists them all.
 | `/tool fade minimap N` | How far the minimap fades, from `0` (gone, the default) to `1` (not at all). |
 | `/tool fade unit N` | How far the player and target frames fade while they still matter, from `0` to `1` (default `0.5`). |
 | `/tool fade damage N` | How far the damage meter fades while you're in a group, from `0` (gone, the default) to `1` (not at all). Solo, it always fades out completely. |
+| `/tool fade chat N` | How far the main chat window's text fades, from `0` (gone) to `1` (not at all). Default `0.5`. Its background always fades away completely. |
+| `/tool fade xp N` | How far the experience bar fades for N seconds (your fade delay) after gaining XP, from `0` (gone, the default) to `1` (not at all). |
 
 `/tool init` does the following:
 
@@ -45,7 +47,7 @@ With `/tool fade N` set, each piece of the UI fades out once you've left it alon
 Each of these fades on its own:
 
 - **Minimap**, with its zone text, border and buttons. At `/tool fade minimap 0` the map is hidden once fully faded, because the player arrow and tracking icons ignore transparency.
-- **Main chat window** (General and anything docked with it). Only its background, border and buttons fade away. The text dims to half, and typing brings it back.
+- **Main chat window** (General and anything docked with it). Only its background, border and buttons fade away. The text dims to the `/tool fade chat` level (half by default), and typing brings it back.
 - **Other chat windows** (undocked, e.g. a separate Combat Log). These fade entirely.
 - **Action bars**. Hovering any bar brings back all of them.
 - **Player frame**. Stops at the `/tool fade unit` level while you're in combat, or while your health or main power bar has changed in the last 7 seconds. The game keeps those values secret from addons, so "still changing" is the best available stand-in for "not full".
@@ -54,7 +56,7 @@ Each of these fades on its own:
 - **Damage meter**. Stops at the `/tool fade damage` level while you're in a group.
 - **Bag buttons**.
 - **Menu buttons** (character, spellbook, ...).
-- **Experience and reputation bars**.
+- **Experience and reputation bars**. Stop at the `/tool fade xp` level for your fade delay after gaining XP.
 - **Quest tracker**.
 - **Buffs and debuffs**.
 
