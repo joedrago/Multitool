@@ -18,6 +18,7 @@ Assorted QoL slash commands for WoW Forever. `/tool` lists them all.
 | `/tool fade combat on\|off` | Whether entering combat brings everything back (default `on`). With `off`, only hovering does. |
 | `/tool fade minimap N` | How far the minimap fades, from `0` (gone, the default) to `1` (not at all). |
 | `/tool fade unit N` | How far the player and target frames fade while they still matter, from `0` to `1` (default `0.5`). |
+| `/tool fade damage N` | How far the damage meter fades while you're in a group, from `0` (gone, the default) to `1` (not at all). Solo, it always fades out completely. |
 
 `/tool init` does the following:
 
@@ -50,7 +51,7 @@ Each of these fades on its own:
 - **Player frame**. Stops at the `/tool fade unit` level while you're in combat, or while your health or main power bar has changed in the last 7 seconds. The game keeps those values secret from addons, so "still changing" is the best available stand-in for "not full".
 - **Target frame**. Stops at the `/tool fade unit` level while you're in combat, or for 5 seconds after picking a target.
 - **Other unit frames**: focus, party and raid frames. Hovering any unit frame, player and target included, brings back all of them.
-- **Damage meter**.
+- **Damage meter**. Stops at the `/tool fade damage` level while you're in a group.
 - **Bag buttons**.
 - **Menu buttons** (character, spellbook, ...).
 - **Experience and reputation bars**.

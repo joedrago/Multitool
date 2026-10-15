@@ -238,6 +238,9 @@ local GROUPS = {
         fade = { "DamageMeter" },
         hover = { "DamageMeterSessionWindow1", "DamageMeterSessionWindow2", "DamageMeterSessionWindow3" },
         hoverOnly = true,
+        floor = function()
+            return IsInGroup() and MT.db().damageFloor or 0
+        end,
     },
     {
         fade = { "BagsBar" },
@@ -393,9 +396,11 @@ local function printFade()
     local floor = db.minimapFloor or 0
     MT.print(floor > 0 and ("the minimap fades to " .. floor .. ".") or "the minimap fades out completely.")
     MT.print("player and target frames fade to " .. unitFloor() .. " while they matter.")
+    local damage = db.damageFloor or 0
+    MT.print(damage > 0 and ("the damage meter fades to " .. damage .. " in a group.") or "the damage meter fades out completely.")
 end
 
-local FADE_USAGE = "usage: /tool fade <seconds, 0 = off> | combat <on | off> | minimap <0 to 1> | unit <0 to 1>"
+local FADE_USAGE = "usage: /tool fade <seconds, 0 = off> | combat <on | off> | minimap <0 to 1> | unit <0 to 1> | damage <0 to 1>"
 
 local function fraction(value)
     local n = tonumber(value)
@@ -418,6 +423,9 @@ function MT.fade(msg)
         db.minimapFloor = floor > 0 and floor or nil
     elseif option == "unit" and fraction(value) then
         db.unitFloor = fraction(value)
+    elseif option == "damage" and fraction(value) then
+        local floor = fraction(value)
+        db.damageFloor = floor > 0 and floor or nil
     elseif option == nil and tonumber(msg) and tonumber(msg) >= 0 then
         local seconds = tonumber(msg)
         db.fade = seconds > 0 and seconds or nil
@@ -459,4 +467,4 @@ loader:SetScript("OnEvent", function(self, _, name)
     end
 end)
 
-MT.register("fade", "fade most of the UI after N seconds out of combat; hover a piece or enter combat to bring it back. /tool fade N (0 = off) | combat <on | off> | minimap <0 to 1> | unit <0 to 1>", MT.fade)
+MT.register("fade", "fade most of the UI after N seconds out of combat; hover a piece or enter combat to bring it back. /tool fade N (0 = off) | combat <on | off> | minimap <0 to 1> | unit <0 to 1> | damage <0 to 1>", MT.fade)
