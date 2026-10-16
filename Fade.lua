@@ -234,7 +234,7 @@ local GROUPS = {
         hover = actionBarHover,
         hoverOnly = true,
         floor = function()
-            return MT.db().mainBarFloor or 0
+            return inCombat() and MT.db().mainBarFloor or 0
         end,
     },
     {
@@ -248,7 +248,7 @@ local GROUPS = {
     -- Unit frames are split so the player and target frames can stop at their own floors; they
     -- share a hover list so hovering any unit frame brings back all of them.
     {
-        fade = { "PlayerFrame", "PersonalResourceDisplayFrame" },
+        fade = { "PlayerFrame", "PersonalResourceDisplayFrame", "PartyFrame" },
         hover = unitFrameHover,
         hoverOnly = true,
         floor = function()
@@ -264,7 +264,7 @@ local GROUPS = {
         end,
     },
     {
-        fade = { "FocusFrame", "PartyFrame", "CompactRaidFrameContainer", "CompactRaidFrameManager" },
+        fade = { "FocusFrame", "CompactRaidFrameContainer", "CompactRaidFrameManager" },
         hover = unitFrameHover,
         hoverOnly = true,
     },
@@ -274,7 +274,7 @@ local GROUPS = {
         hover = { "DamageMeterSessionWindow1", "DamageMeterSessionWindow2", "DamageMeterSessionWindow3" },
         hoverOnly = true,
         floor = function()
-            return IsInGroup() and MT.db().damageFloor or 0
+            return inCombat() and IsInGroup() and MT.db().damageFloor or 0
         end,
     },
     {
@@ -333,6 +333,10 @@ local function showHidden(group)
     end
 end
 
+-- Regions that ignore their parents' alpha, so they have to be faded by hand. Each maps to the
+-- group it fades with, or false if it isn't inside any of ours (e.g. a nameplate).
+local detached = {}
+
 local function setAlpha(group, a)
     if a > 0 then
         showHidden(group)
@@ -346,6 +350,11 @@ local function setAlpha(group, a)
     eachFrame(group.fade, function(frame)
         frame:SetAlpha((group.base[frame] or 1) * a)
     end)
+    for region, owner in pairs(detached) do
+        if owner == group then
+            region:SetAlpha(a)
+        end
+    end
     if group.apply then
         group.apply(a)
     end
@@ -357,6 +366,39 @@ local function setAlpha(group, a)
             end
         end)
     end
+end
+
+local function owningGroup(frame)
+    while frame do
+        for _, group in ipairs(GROUPS) do
+            for _, name in ipairs(group.fade) do
+                if _G[name] == frame then
+                    return group
+                end
+            end
+        end
+        frame = frame:GetParent()
+    end
+    return nil
+end
+
+-- Party and raid frames draw their target highlight with ignoreParentAlpha, which would leave a
+-- bright rectangle behind on a faded frame. Each one is picked up the first time Blizzard updates
+-- it, and caught up to its group's alpha whenever Blizzard touches it after that.
+if CompactUnitFrame_UpdateSelectionHighlight then
+    hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", function(frame)
+        local highlight = frame.selectionHighlight
+        if not highlight then
+            return
+        end
+        if detached[highlight] == nil then
+            detached[highlight] = owningGroup(frame) or false
+        end
+        local group = detached[highlight]
+        if group then
+            highlight:SetAlpha(group.alpha)
+        end
+    end)
 end
 
 local function hovered(names)
@@ -434,10 +476,10 @@ local function printFade()
     local floor = db.minimapFloor or 0
     MT.print(floor > 0 and ("the minimap fades to " .. floor .. ".") or "the minimap fades out completely.")
     local main = db.mainBarFloor or 0
-    MT.print(main > 0 and ("the main action bar fades to " .. main .. ".") or "the main action bar fades out completely.")
-    MT.print("player and target frames fade to " .. unitFloor() .. " while they matter.")
+    MT.print(main > 0 and ("the main action bar fades to " .. main .. " in combat.") or "the main action bar fades out completely.")
+    MT.print("player, party and target frames fade to " .. unitFloor() .. " while they matter.")
     local damage = db.damageFloor or 0
-    MT.print(damage > 0 and ("the damage meter fades to " .. damage .. " in a group.") or "the damage meter fades out completely.")
+    MT.print(damage > 0 and ("the damage meter fades to " .. damage .. " in combat in a group.") or "the damage meter fades out completely.")
     local xp = db.xpFloor or 0
     MT.print(xp > 0 and ("the xp bar fades to " .. xp .. " after gaining xp.") or "the xp bar fades out completely.")
     MT.print("main chat text fades to " .. chatTextFloor() .. ".")
