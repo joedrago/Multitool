@@ -17,6 +17,7 @@ Assorted QoL slash commands for WoW Forever. `/tool` lists them all.
 | `/tool fade [N]` | Fades most of the UI after N seconds of not using it. `0` turns it off (the default). With no arguments, prints the current settings. See [Fade](#fade) below. |
 | `/tool fade combat on\|off` | Whether entering combat brings everything back (default `on`). With `off`, only hovering does. |
 | `/tool fade minimap N` | How far the minimap fades, from `0` (gone, the default) to `1` (not at all). |
+| `/tool fade main N` | How far the main action bar fades, from `0` (gone, the default) to `1` (not at all). |
 | `/tool fade unit N` | How far the player and target frames fade while they still matter, from `0` to `1` (default `0.5`). |
 | `/tool fade damage N` | How far the damage meter fades while you're in a group, from `0` (gone, the default) to `1` (not at all). Solo, it always fades out completely. |
 | `/tool fade chat N` | How far the main chat window's text fades, from `0` (gone) to `1` (not at all). Default `0.5`. Its background always fades away completely. |
@@ -49,8 +50,9 @@ Each of these fades on its own:
 - **Minimap**, with its zone text, border and buttons. At `/tool fade minimap 0` the map is hidden once fully faded, because the player arrow and tracking icons ignore transparency.
 - **Main chat window** (General and anything docked with it). Only its background, border and buttons fade away. The text dims to the `/tool fade chat` level (half by default), and typing brings it back.
 - **Other chat windows** (undocked, e.g. a separate Combat Log). These fade entirely.
-- **Action bars**. Hovering any bar brings back all of them.
-- **Player frame**. Stops at the `/tool fade unit` level while you're in combat, or while your health or main power bar has changed in the last 7 seconds. The game keeps those values secret from addons, so "still changing" is the best available stand-in for "not full".
+- **Main action bar**. Stops at the `/tool fade main` level.
+- **Other action bars**. Hovering any bar, the main one included, brings back all of them.
+- **Player frame and personal resource display**. Stop at the `/tool fade unit` level while you're in combat, or while your health or main power bar has changed in the last 7 seconds. The game keeps those values secret from addons, so "still changing" is the best available stand-in for "not full".
 - **Target frame**. Stops at the `/tool fade unit` level while you're in combat, or for 5 seconds after picking a target.
 - **Other unit frames**: focus, party and raid frames. Hovering any unit frame, player and target included, brings back all of them.
 - **Damage meter**. Stops at the `/tool fade damage` level while you're in a group.

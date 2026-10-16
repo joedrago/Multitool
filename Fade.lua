@@ -196,8 +196,13 @@ local function applyOtherChat(alpha)
 end
 
 local unitFrameHover = {
-    "PlayerFrame", "PetFrame", "TargetFrame", "TargetFrameToT", "FocusFrame", "FocusFrameToT",
+    "PlayerFrame", "PersonalResourceDisplayFrame", "PetFrame", "TargetFrame", "TargetFrameToT", "FocusFrame", "FocusFrameToT",
     "PartyFrame", "CompactPartyFrame", "CompactRaidFrameContainer", "CompactRaidFrameManager",
+}
+
+local actionBarHover = {
+    "MainActionBar", "MultiBarBottomLeft", "MultiBarBottomRight", "MultiBarRight", "MultiBarLeft",
+    "MultiBar5", "MultiBar6", "MultiBar7", "StanceBar", "PetActionBar", "PossessActionBar",
 }
 
 local GROUPS = {
@@ -222,16 +227,28 @@ local GROUPS = {
             return chatHovered(false)
         end,
     },
+    -- Action bars are split so the main bar can stop at its own floor; they share a hover list
+    -- so hovering any bar brings back all of them.
+    {
+        fade = { "MainActionBar" },
+        hover = actionBarHover,
+        hoverOnly = true,
+        floor = function()
+            return MT.db().mainBarFloor or 0
+        end,
+    },
     {
         fade = {
-            "MainActionBar", "MultiBarBottomLeft", "MultiBarBottomRight", "MultiBarRight", "MultiBarLeft",
+            "MultiBarBottomLeft", "MultiBarBottomRight", "MultiBarRight", "MultiBarLeft",
             "MultiBar5", "MultiBar6", "MultiBar7", "StanceBar", "PetActionBar", "PossessActionBar",
         },
+        hover = actionBarHover,
+        hoverOnly = true,
     },
     -- Unit frames are split so the player and target frames can stop at their own floors; they
     -- share a hover list so hovering any unit frame brings back all of them.
     {
-        fade = { "PlayerFrame" },
+        fade = { "PlayerFrame", "PersonalResourceDisplayFrame" },
         hover = unitFrameHover,
         hoverOnly = true,
         floor = function()
@@ -416,6 +433,8 @@ local function printFade()
     end
     local floor = db.minimapFloor or 0
     MT.print(floor > 0 and ("the minimap fades to " .. floor .. ".") or "the minimap fades out completely.")
+    local main = db.mainBarFloor or 0
+    MT.print(main > 0 and ("the main action bar fades to " .. main .. ".") or "the main action bar fades out completely.")
     MT.print("player and target frames fade to " .. unitFloor() .. " while they matter.")
     local damage = db.damageFloor or 0
     MT.print(damage > 0 and ("the damage meter fades to " .. damage .. " in a group.") or "the damage meter fades out completely.")
@@ -424,7 +443,7 @@ local function printFade()
     MT.print("main chat text fades to " .. chatTextFloor() .. ".")
 end
 
-local FADE_USAGE = "usage: /tool fade <seconds, 0 = off> | combat <on | off> | minimap <0 to 1> | unit <0 to 1> | damage <0 to 1> | xp <0 to 1> | chat <0 to 1>"
+local FADE_USAGE = "usage: /tool fade <seconds, 0 = off> | combat <on | off> | minimap <0 to 1> | main <0 to 1> | unit <0 to 1> | damage <0 to 1> | xp <0 to 1> | chat <0 to 1>"
 
 local function fraction(value)
     local n = tonumber(value)
@@ -445,6 +464,9 @@ function MT.fade(msg)
     elseif option == "minimap" and fraction(value) then
         local floor = fraction(value)
         db.minimapFloor = floor > 0 and floor or nil
+    elseif option == "main" and fraction(value) then
+        local floor = fraction(value)
+        db.mainBarFloor = floor > 0 and floor or nil
     elseif option == "unit" and fraction(value) then
         db.unitFloor = fraction(value)
     elseif option == "damage" and fraction(value) then
@@ -502,4 +524,4 @@ loader:SetScript("OnEvent", function(self, _, name)
     end
 end)
 
-MT.register("fade", "fade most of the UI after N seconds out of combat; hover a piece or enter combat to bring it back. /tool fade N (0 = off) | combat <on | off> | minimap <0 to 1> | unit <0 to 1> | damage <0 to 1> | xp <0 to 1> | chat <0 to 1>", MT.fade)
+MT.register("fade", "fade most of the UI after N seconds out of combat; hover a piece or enter combat to bring it back. /tool fade N (0 = off) | combat <on | off> | minimap <0 to 1> | main <0 to 1> | unit <0 to 1> | damage <0 to 1> | xp <0 to 1> | chat <0 to 1>", MT.fade)
